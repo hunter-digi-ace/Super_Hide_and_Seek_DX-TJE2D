@@ -95,6 +95,8 @@ public:
 
 	//manager of images
 	static Image* Get( std::string name );
+	void drawMap(Image tileSet, int mapborders[], int size[2], float time);
+	void drawNpcs(Image tileSet, int mapborders[], int size[2], float time);
 	static std::map<std::string, Image*> s_loaded_images;
 	void registerAs(std::string name);
 };

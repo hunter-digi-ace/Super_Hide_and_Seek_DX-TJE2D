@@ -480,3 +480,38 @@ Image* Image::Get(std::string name)
 	img->registerAs(name);
 	return img;
 }
+
+
+void Image::drawMap(Image tileSet, int mapborders[], int size[2], float time) {
+	for (int n = 0; n < size[0]; n++) {
+		for (int m = 0; m < size[1]; m++) {
+			int aux = mapborders[m * size[0] + n];
+			int x = aux % 24;
+			int y = aux / 24;
+			if (aux == 376 || aux == 400 || aux == 424 || aux == 448 || aux == 472 || aux == 496) {
+				this->drawImage(tileSet, n * 16, m * 16, Area(1 + 1 * (x + (int(time * 2) % 4)) + 16 * (x + (int(time * 2) % 4)), 1 + 1 * y + 16 * y, 16, 16));
+			}
+			else if (aux == 380 || aux == 404 || aux == 300) {
+				this->drawImage(tileSet, n * 16, m * 16, Area(1 + 1 * (x + (int(time * 3) % 4)) + 16 * (x + (int(time * 3) % 4)), 1 + 1 * y + 16 * y, 16, 16));
+			}
+			else if (aux == 520 || aux == 544 || aux == 568) {
+				this->drawImage(tileSet, n * 16, m * 16, Area(1 + 1 * (x + (int(time * 3) % 6)) + 16 * (x + (int(time * 3) % 6)), 1 + 1 * y + 16 * y, 16, 16));
+			}
+			else {
+				this->drawImage(tileSet, n * 16, m * 16, Area(1 + 1 * x + 16 * x, 1 + 1 * y + 16 * y, 16, 16));
+			}
+		}
+	}
+};
+
+void Image::drawNpcs(Image tileSet, int mapborders[], int size[2], float time) {
+	for (int n = 0; n < size[0]; n++) {
+		for (int m = 0; m < size[1]; m++) {
+			if (mapborders[m * size[0] + n] != -1) {
+				int y = mapborders[m * size[0] + n] / 2;
+				this->drawImage(tileSet, n * 16, m * 16, Area(16 * (int(time * 4) % 2), 16 * y, 16, 16));
+			}
+		}
+	}
+};
+

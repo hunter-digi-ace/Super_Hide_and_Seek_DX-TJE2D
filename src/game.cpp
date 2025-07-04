@@ -1,16 +1,20 @@
 #include "game.h"
-#include "utils.h"
-#include "input.h"
-#include "image.h"
+#include "pantallas.h"
 
-#include <cmath>
+
+
+////////////////////////////
+////////////////////////////
 
 Game* Game::instance = NULL;
 
-Image font;
-Image minifont;
-Image sprite;
 Color bgcolor(130, 80, 100);
+
+sGameData myGame;
+
+Stage* Stage::current_stage = NULL;
+std::map<std::string, Stage*> Stage::s_stages;
+
 
 Game::Game(int window_width, int window_height, SDL_Window* window)
 {
@@ -25,13 +29,69 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	time = 0.0f;
 	elapsed_time = 0.0f;
 
-	font.loadTGA("data/bitmap-font-white.tga"); //load bitmap-font image
-	minifont.loadTGA("data/mini-font-white-4x6.tga"); //load bitmap-font image
-	sprite.loadTGA("data/spritesheet.tga"); //example to load an sprite
 
-	//enableAudio(); //enable this line if you plan to add audio to your application
-	//synth.playSample("data/coin.wav",1,true);
+	//cargamos las imagenes
+	font = Image::Get("data/bitmap-font-white.tga");
+	font->registerAs("font");
+	fontb = Image::Get("data/bitmap-font-black.tga");
+	fontb->registerAs("fontb");
+	minifont_b = Image::Get("data/mini-font-black-4x6.tga"); //load bitmap-font image
+	minifont_b->registerAs("minifont_b");
+	minifont_w = Image::Get("data/mini-font-white-4x6.tga"); //load bitmap-font image
+	minifont_w->registerAs("minifont_w");
+	sprite = Image::Get("data/mydata/sprites.tga"); //example to load an sprite
+	sprite->registerAs("sprite");
+	menu = Image::Get("data/mydata/barra_menu.tga"); //example to load an sprite
+	menu->registerAs("menu");
+	tileSet = Image::Get("data/mydata/tileset_mapa.tga"); //example to load an sprite
+	tileSet->registerAs("tileSet");
+	intro = Image::Get("data/mydata/intro.tga"); //example to load an sprite
+	intro->registerAs("intro");
+	intro1 = Image::Get("data/mydata/intro1.tga"); //example to load an sprite
+	intro1->registerAs("intro1");
+	intro2 = Image::Get("data/mydata/intro2.tga"); //example to load an sprite
+	intro2->registerAs("intro2");
+	intro3 = Image::Get("data/mydata/intro3.tga"); //example to load an sprite
+	intro3->registerAs("intro3");
+	titlescreen = Image::Get("data/mydata/titlescreen.tga"); //example to load an sprite
+	titlescreen->registerAs("titlescreen");
+	menuintro = Image::Get("data/mydata/menu.tga"); //example to load an sprite
+	menuintro->registerAs("menuintro");
+
+
+
+
+	//cargamos el mapa del mundo
+	string location = "data/mydata/world_final";
+	functions::loadMap(location, myGame);
+
+
+	///comunicamos las puertas
+	functions::comunicatemaps(myGame, 35, 25); //tutorial casa-mundo
+	functions::comunicatemaps(myGame, 31, 10); //juego casa-mundo
+	functions::comunicatemaps(myGame, 38, 37); //torre piso1-2
+	functions::comunicatemaps(myGame, 9, 36); //mundo-torre
+	functions::comunicatemaps(myGame, 24, 33); //playa-cueva monos
+	functions::comunicatemaps(myGame, 7, 34); //mundo-guarida zorro
+	functions::comunicatemaps(myGame, 16, 39); //mundo-guarida conejos
+
+
+	//mapborders2 = readCSV("data/mydata/test_world.csv"); // cargar datos del mapa
+	enableAudio(); //enable this line if you plan to add audio to your application
+	//synth.playSample("data/mydata/mabe-village.wav", 1, true);
 	//synth.osc1.amplitude = 0.5;
+	synth.volume = 0.1;
+
+	Stage::current_stage = new titleStage();
+	new IntroStage();
+	new PlayStage();
+	new MenuStage();
+	new talkStage();
+	new talkobjectStage();
+	new catchStage();
+	new endStage();
+
+	Game::instance->synth.playSample("data/mydata/intro.wav", 1, false);
 }
 
 //what to do when the image has to be draw
@@ -43,16 +103,9 @@ void Game::render(void)
 	//add your code here to fill the framebuffer
 	//...
 
-	//some new useful functions
-		framebuffer.fill( bgcolor );								//fills the image with one color
-		//framebuffer.drawLine( 0, 0, 100,100, Color::RED );		//draws a line
-		//framebuffer.drawImage( sprite, 0, 0 );					//draws full image
-		framebuffer.drawImage( sprite, 0, 0, framebuffer.width, framebuffer.height );			//draws a scaled image
-		//framebuffer.drawImage( sprite, 0, 0, Area(0,0,14,18) );	//draws only a part of an image
-		framebuffer.drawText( "Hello World", 0, 0, font );				//draws some text using a bitmap font in an image (assuming every char is 7x9)
-		//framebuffer.drawText( toString(time), 1, 10, minifont,4,6);	//draws some text using a bitmap font in an image (assuming every char is 4x6)
+	Stage::current_stage->render(framebuffer, time, myGame);
 
-	//send image to screen
+
 	showFramebuffer(&framebuffer);
 }
 
@@ -60,14 +113,9 @@ void Game::update(double seconds_elapsed)
 {
 	//Add here your update method
 	//...
+	Stage::current_stage->update(seconds_elapsed, myGame);
 
-	//Read the keyboard state, to see all the keycodes: https://wiki.libsdl.org/SDL_Keycode
-	if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
-	{
-	}
-	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
-	{
-	}
+	
 
 	//example of 'was pressed'
 	if (Input::wasKeyPressed(SDL_SCANCODE_A)) //if key A was pressed
@@ -91,9 +139,9 @@ void Game::update(double seconds_elapsed)
 //Keyboard event handler (sync input)
 void Game::onKeyDown( SDL_KeyboardEvent event )
 {
-	switch(event.keysym.sym)
+	switch (event.keysym.sym)
 	{
-		case SDLK_ESCAPE: must_exit = true; break; //ESC key, kill the app
+	case SDLK_ESCAPE: must_exit = true; break; //ESC key, kill the app
 	}
 }
 

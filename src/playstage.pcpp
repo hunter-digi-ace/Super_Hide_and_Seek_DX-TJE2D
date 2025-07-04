@@ -1,0 +1,90 @@
+
+
+
+void PlayStage::render(Image& fb, float time, sGameData& myGame) {///////////////////////////////////////////////////////////////////////    PLAYSTAGE
+	fb.drawMap(*Image::Get("tileSet"), myGame.world.areas[myGame.actualArea].mapa, myGame.world.areas->size_components, time);
+	fb.drawNpcs(*Image::Get("sprite"), myGame.world.areas[myGame.actualArea].npcs, myGame.world.areas->size_components, time);
+	fb.drawImage(*Image::Get("sprite"), myGame.player.pos.x, myGame.player.pos.y, Area((int(time * 5) % 2) * 16, myGame.player.facing * 16, 16, 16));
+	fb.drawImage(*Image::Get("menu"), 0, 112);
+	fb.drawText(functions::timeformat(time), 130, 114, *Image::Get("minifont_b"), 4, 6);
+	fb.drawText(toString(myGame.counter), 120, 114, *Image::Get("minifont_b"), 4, 6);
+}
+void PlayStage::update(double seconds_elapsed, sGameData& myGame) {
+	if (Input::wasKeyPressed(SDL_SCANCODE_X)) {
+		changeState("menu");
+	}
+	if (myGame.musicPlaying == 0) {
+		Game::instance->synth.playSample("data/mydata/mabe-village.wav", 1, true);
+		myGame.musicPlaying = 1;
+	}
+
+	functions::changeMap(myGame);
+
+	//Read the keyboard state, to see all the keycodes: https://wiki.libsdl.org/SDL_Keycode
+	if (Input::isKeyPressed(SDL_SCANCODE_UP)) {//if key up
+		functions::move(UP, seconds_elapsed, myGame);
+	}
+	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) {//if key down
+		functions::move(DOWN, seconds_elapsed, myGame);
+	}
+	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) {//if key down
+		functions::move(LEFT, seconds_elapsed, myGame);
+	}
+	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) {//if key down
+		functions::move(RIGHT, seconds_elapsed, myGame);
+	}
+	if (myGame.player.bota) {//if key down //if myGame.player.bota
+		myGame.player.player_speed = 110;
+	}
+	else {
+		myGame.player.player_speed = 55;
+	}
+
+	if (Input::wasKeyPressed(SDL_SCANCODE_Z)) { //if key Z was pressed
+		int aux = functions::posActual(myGame);
+		if (myGame.player.facing == FACE_UP) {
+			if (myGame.world.areas[myGame.actualArea].tipo[aux - 10] == NPC) {
+				myGame.talkinTo = aux - 10;
+				if (functions::isKid(myGame.world.areas[myGame.actualArea].npcs[aux - 10])) {///////////////////////////////////////////////////////////////////
+					changeState("catch");
+				}
+				else {
+					changeState("talk");
+				}
+			}
+		}
+		if (myGame.player.facing == FACE_DOWN) {
+			if (myGame.world.areas[myGame.actualArea].tipo[aux + 10] == NPC) {
+				myGame.talkinTo = aux + 10;
+				if (functions::isKid(myGame.world.areas[myGame.actualArea].npcs[aux + 10])) {///////////////////////////////////////////////////////////////////
+					changeState("catch");
+				}
+				else {
+					changeState("talk");
+				}
+			}
+		}
+		if (myGame.player.facing == FACE_LEFT) {
+			if (myGame.world.areas[myGame.actualArea].tipo[aux - 1] == NPC) {
+				myGame.talkinTo = aux - 1;
+				if (functions::isKid(myGame.world.areas[myGame.actualArea].npcs[aux - 1])) {///////////////////////////////////////////////////////////////////
+					changeState("catch");
+				}
+				else {
+					changeState("talk");
+				}
+			}
+		}
+		if (myGame.player.facing == FACE_RIGHT) {
+			if (myGame.world.areas[myGame.actualArea].tipo[aux + 1] == NPC) {
+				myGame.talkinTo = aux + 1;
+				if (functions::isKid(myGame.world.areas[myGame.actualArea].npcs[aux + 1])) {///////////////////////////////////////////////////////////////////
+					changeState("catch");
+				}
+				else {
+					changeState("talk");
+				}
+			}
+		}
+	}
+}

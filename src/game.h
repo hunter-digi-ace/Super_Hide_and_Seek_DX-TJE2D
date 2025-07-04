@@ -6,9 +6,13 @@
 #define GAME_H
 
 #include "includes.h"
-#include "image.h"
 #include "utils.h"
 #include "synth.h"
+#include "image.h"
+#include "functions.h"
+#include "input.h"
+
+#include <cmath>
 
 class Game
 {
@@ -26,6 +30,24 @@ public:
 	float elapsed_time;
 	int fps;
 	bool must_exit;
+
+
+
+	//images
+
+	Image* font;
+	Image* fontb;
+	Image* minifont_b;
+	Image* minifont_w;
+	Image* sprite;
+	Image* menu;
+	Image* tileSet;
+	Image* intro;
+	Image* intro1;
+	Image* intro2;
+	Image* intro3;
+	Image* titlescreen;
+	Image* menuintro;
 
 	//audio
 	Synth synth;
