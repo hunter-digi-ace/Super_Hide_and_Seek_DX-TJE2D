@@ -38,7 +38,7 @@ Image::Image(const Image& c) {
 //assign operator
 Image& Image::operator = (const Image& c)
 {
-	if(pixels) delete pixels;
+	if(pixels) delete[] pixels;
 	pixels = NULL;
 
 	width = c.width;
@@ -389,7 +389,7 @@ bool Image::loadTGA(const char* filename)
 	if (tgainfo->data == NULL || fread(tgainfo->data, 1, imageSize, file) != imageSize)
 	{
 		if (tgainfo->data != NULL)
-			delete tgainfo->data;
+			delete[] tgainfo->data;
 
 		fclose(file);
 		delete tgainfo;
@@ -400,7 +400,7 @@ bool Image::loadTGA(const char* filename)
 
 	//save info in image
 	if (pixels)
-		delete pixels;
+		delete[] pixels;
 
 	width = tgainfo->width;
 	height = tgainfo->height;
@@ -415,7 +415,7 @@ bool Image::loadTGA(const char* filename)
 			this->setPixel(x, flipY ? height - y - 1 : y, Color(tgainfo->data[pos + 2], tgainfo->data[pos + 1], tgainfo->data[pos], alpha));
 		}
 
-	delete tgainfo->data;
+	delete[] tgainfo->data;
 	delete tgainfo;
 	std::cout << " + Image loaded: " << filename << std::endl;
 

@@ -7,27 +7,31 @@ functions::functions()
 {
 }
 
-int* functions::readCSV(std::string filesrc, int size) { //archivo y tamaño de area
-	int pos = 0;
-	int* mapborder = new int[size];
-	ifstream file;
-	file.open(filesrc, fstream::in);
-	if (!file.is_open()) {
-		fprintf(stderr, "Error locating the file map");
-	}
-	int aux = 0;
-	while (file.good()) {
-		string line;
-		while (getline(file, line)) {   // get a whole line
-			std::stringstream ss(line);
-			while (getline(ss, line, ',')) {
-				int aux;
-				istringstream(line) >> aux;
-				mapborder[pos++] = aux;
-			}
-		}
-	}
-	/*
+std::vector<int> functions::readCSV(std::string filesrc, int size) {  // archivo y tamaño de area
+  std::vector<int> mapborder(size, 0);
+  ifstream file;
+  file.open(filesrc, fstream::in);
+
+  if (!file.is_open()) {
+    fprintf(stderr, "Error locating the file map");
+    return mapborder;
+  }
+
+  int pos = 0;
+  string line;
+  while (getline(file, line) && pos < size) {
+    stringstream ss(line);
+    string token;
+    while (getline(ss, token, ',') && pos < size) {
+      try {
+        mapborder[pos++] = stoi(token);
+      } catch (...) {
+        // Handle conversion errors
+        mapborder[pos++] = 0;
+      }
+    }
+  }
+  /*
 	fprintf(stderr, "%d, \n", myGame.actualArea);
 	int actualpos = 0;
 	while (10 * 7 > actualpos) {
@@ -41,8 +45,9 @@ int* functions::readCSV(std::string filesrc, int size) { //archivo y tamaño de a
 		actualpos += 1;
 	}
 	*/
-	return mapborder;
+  return mapborder;
 }
+
 void functions::setdinner(sGameData& myGame) {
 	myGame.world.areas[31].npcs[21] = 18;
 	myGame.world.areas[31].npcs[22] = 20;
@@ -108,6 +113,7 @@ bool functions::loadGameInfo(sGameData& myGame){
 	else {
 		functions::reset(myGame);
 	}
+  return false;
 }
 
 string functions::timeformat(float time) {
@@ -303,9 +309,9 @@ void functions::reset(sGameData& myGame) { ////poner todo a 0 y reiniciar partid
 	int actualpos = 0;
 	while (50 * 56 > actualpos) {
 
-		std::memcpy(&myGame.world.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].mapa[(actualpos % 10 + (actualpos / 50) * 10) % 70], &myGame.Resetworld.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].mapa[(actualpos % 10 + (actualpos / 50) * 10) % 70], sizeof(int));
-		std::memcpy(&myGame.world.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].npcs[(actualpos % 10 + (actualpos / 50) * 10) % 70], &myGame.Resetworld.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].npcs[(actualpos % 10 + (actualpos / 50) * 10) % 70], sizeof(int));
-		std::memcpy(&myGame.world.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].tipo[(actualpos % 10 + (actualpos / 50) * 10) % 70], &myGame.Resetworld.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].tipo[(actualpos % 10 + (actualpos / 50) * 10) % 70], sizeof(int));
+		memcpy(&myGame.world.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].mapa[(actualpos % 10 + (actualpos / 50) * 10) % 70], &myGame.Resetworld.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].mapa[(actualpos % 10 + (actualpos / 50) * 10) % 70], sizeof(int));
+		memcpy(&myGame.world.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].npcs[(actualpos % 10 + (actualpos / 50) * 10) % 70], &myGame.Resetworld.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].npcs[(actualpos % 10 + (actualpos / 50) * 10) % 70], sizeof(int));
+		memcpy(&myGame.world.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].tipo[(actualpos % 10 + (actualpos / 50) * 10) % 70], &myGame.Resetworld.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].tipo[(actualpos % 10 + (actualpos / 50) * 10) % 70], sizeof(int));
 		myGame.world.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].hasChild = false;
 		myGame.world.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].objeto[(actualpos % 10 + (actualpos / 50) * 10) % 70] = BOTA;
 		actualpos += 1;
@@ -354,23 +360,22 @@ void functions::initGame(sGameData& myGame) {
 void functions::loadMap(string location, sGameData& myGame) { ///////////cargamos el mundo y los interiores
 
 	int* bigMap[3][50 * 56];
-	std::memcpy(&bigMap[0], functions::readCSV(location + "_mapa.csv", (50 * 56)), (50 * 56) * sizeof(int));// cargar datos de los npc mundo
-	std::memcpy(&bigMap[1], functions::readCSV(location + "_npc.csv", (50 * 56)), (50 * 56) * sizeof(int));// cargar datos de los npc
-	std::memcpy(&bigMap[2], functions::readCSV(location + "_tipo.csv", (50 * 56)), (50 * 56) * sizeof(int));// cargar datos de los npc
-
+	std::vector<int> mapa_data = readCSV(location + "_mapa.csv", 50 * 56);;// cargar datos de los npc mundo
+	std::vector<int> npc_data = readCSV(location + "_npc.csv", 50 * 56);// cargar datos de los npc
+	std::vector<int> tipo_data = readCSV(location + "_tipo.csv", 50 * 56);// cargar datos de los npc
 
 	int actualpos = 0;
 	while (50 * 56 > actualpos) {
 		int aux1 = (actualpos / 10) % 5 + actualpos / 350 * 5;
 		int aux2 = (actualpos % 10 + (actualpos / 50) * 10) % 70;
-		std::memcpy(&myGame.world.areas[aux1].mapa[aux2], &bigMap[0][actualpos], sizeof(int));  //copiamos en la estructura
-		std::memcpy(&myGame.world.areas[aux1].npcs[aux2], &bigMap[1][actualpos], sizeof(int));
-		std::memcpy(&myGame.world.areas[aux1].tipo[aux2], &bigMap[2][actualpos], sizeof(int));
+		myGame.world.areas[aux1].mapa[aux2] = mapa_data[actualpos];  //copiamos en la estructura
+		myGame.world.areas[aux1].npcs[aux2] = npc_data[actualpos];
+		myGame.world.areas[aux1].tipo[aux2] = (eCellType) tipo_data[actualpos];
 		
 		//borrar si implemento npc fisico
-		std::memcpy(&myGame.Resetworld.areas[aux1].mapa[aux2], &myGame.world.areas[aux1].mapa[aux2], sizeof(int)); //copiamos para el reset
-		std::memcpy(&myGame.Resetworld.areas[aux1].npcs[aux2], &myGame.world.areas[aux1].npcs[aux2], sizeof(int));
-		std::memcpy(&myGame.Resetworld.areas[aux1].tipo[aux2], &myGame.world.areas[aux1].tipo[aux2], sizeof(int));
+		myGame.Resetworld.areas[aux1].mapa[aux2] = mapa_data[actualpos]; //copiamos para el reset
+		myGame.Resetworld.areas[aux1].npcs[aux2] = npc_data[actualpos];
+		myGame.Resetworld.areas[aux1].tipo[aux2] = (eCellType) tipo_data[actualpos];
 				
 		actualpos += 1;
 	}
