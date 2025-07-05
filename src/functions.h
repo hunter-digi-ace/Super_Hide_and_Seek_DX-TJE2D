@@ -14,7 +14,7 @@ class functions{
 public:
     functions();
 
-    static int* readCSV(std::string filesrc, int size);
+    static std::vector<int> readCSV(std::string filesrc, int size);
     static void loadMap(string location, sGameData& myGame);
     static void initGame(sGameData& myGame);
     static void saveGameInfo(sGameData& myGame);
