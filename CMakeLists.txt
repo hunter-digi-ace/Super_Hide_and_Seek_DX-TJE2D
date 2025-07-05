@@ -2,6 +2,8 @@ cmake_minimum_required( VERSION 3.2 )
 
 project( ComputerGraphics )
 
+set(OpenGL_GL_PREFERENCE LEGACY)
+
 if( ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang" )
     message( STATUS "Found Clang" )
     # no built in variable for Clang so make one
