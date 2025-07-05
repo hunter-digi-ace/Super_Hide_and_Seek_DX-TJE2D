@@ -303,9 +303,9 @@ void functions::reset(sGameData& myGame) { ////poner todo a 0 y reiniciar partid
 	int actualpos = 0;
 	while (50 * 56 > actualpos) {
 
-		std::memcpy(&myGame.world.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].mapa[(actualpos % 10 + (actualpos / 50) * 10) % 70], &myGame.Resetworld.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].mapa[(actualpos % 10 + (actualpos / 50) * 10) % 70], sizeof(int));
-		std::memcpy(&myGame.world.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].npcs[(actualpos % 10 + (actualpos / 50) * 10) % 70], &myGame.Resetworld.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].npcs[(actualpos % 10 + (actualpos / 50) * 10) % 70], sizeof(int));
-		std::memcpy(&myGame.world.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].tipo[(actualpos % 10 + (actualpos / 50) * 10) % 70], &myGame.Resetworld.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].tipo[(actualpos % 10 + (actualpos / 50) * 10) % 70], sizeof(int));
+		memcpy(&myGame.world.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].mapa[(actualpos % 10 + (actualpos / 50) * 10) % 70], &myGame.Resetworld.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].mapa[(actualpos % 10 + (actualpos / 50) * 10) % 70], sizeof(int));
+		memcpy(&myGame.world.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].npcs[(actualpos % 10 + (actualpos / 50) * 10) % 70], &myGame.Resetworld.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].npcs[(actualpos % 10 + (actualpos / 50) * 10) % 70], sizeof(int));
+		memcpy(&myGame.world.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].tipo[(actualpos % 10 + (actualpos / 50) * 10) % 70], &myGame.Resetworld.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].tipo[(actualpos % 10 + (actualpos / 50) * 10) % 70], sizeof(int));
 		myGame.world.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].hasChild = false;
 		myGame.world.areas[(actualpos / 10) % 5 + actualpos / 350 * 5].objeto[(actualpos % 10 + (actualpos / 50) * 10) % 70] = BOTA;
 		actualpos += 1;
@@ -354,23 +354,23 @@ void functions::initGame(sGameData& myGame) {
 void functions::loadMap(string location, sGameData& myGame) { ///////////cargamos el mundo y los interiores
 
 	int* bigMap[3][50 * 56];
-	std::memcpy(&bigMap[0], functions::readCSV(location + "_mapa.csv", (50 * 56)), (50 * 56) * sizeof(int));// cargar datos de los npc mundo
-	std::memcpy(&bigMap[1], functions::readCSV(location + "_npc.csv", (50 * 56)), (50 * 56) * sizeof(int));// cargar datos de los npc
-	std::memcpy(&bigMap[2], functions::readCSV(location + "_tipo.csv", (50 * 56)), (50 * 56) * sizeof(int));// cargar datos de los npc
+	memcpy(&bigMap[0], functions::readCSV(location + "_mapa.csv", (50 * 56)), (50 * 56) * sizeof(int));// cargar datos de los npc mundo
+	memcpy(&bigMap[1], functions::readCSV(location + "_npc.csv", (50 * 56)), (50 * 56) * sizeof(int));// cargar datos de los npc
+	memcpy(&bigMap[2], functions::readCSV(location + "_tipo.csv", (50 * 56)), (50 * 56) * sizeof(int));// cargar datos de los npc
 
 
 	int actualpos = 0;
 	while (50 * 56 > actualpos) {
 		int aux1 = (actualpos / 10) % 5 + actualpos / 350 * 5;
 		int aux2 = (actualpos % 10 + (actualpos / 50) * 10) % 70;
-		std::memcpy(&myGame.world.areas[aux1].mapa[aux2], &bigMap[0][actualpos], sizeof(int));  //copiamos en la estructura
-		std::memcpy(&myGame.world.areas[aux1].npcs[aux2], &bigMap[1][actualpos], sizeof(int));
-		std::memcpy(&myGame.world.areas[aux1].tipo[aux2], &bigMap[2][actualpos], sizeof(int));
+		memcpy(&myGame.world.areas[aux1].mapa[aux2], &bigMap[0][actualpos], sizeof(int));  //copiamos en la estructura
+		memcpy(&myGame.world.areas[aux1].npcs[aux2], &bigMap[1][actualpos], sizeof(int));
+		memcpy(&myGame.world.areas[aux1].tipo[aux2], &bigMap[2][actualpos], sizeof(int));
 		
 		//borrar si implemento npc fisico
-		std::memcpy(&myGame.Resetworld.areas[aux1].mapa[aux2], &myGame.world.areas[aux1].mapa[aux2], sizeof(int)); //copiamos para el reset
-		std::memcpy(&myGame.Resetworld.areas[aux1].npcs[aux2], &myGame.world.areas[aux1].npcs[aux2], sizeof(int));
-		std::memcpy(&myGame.Resetworld.areas[aux1].tipo[aux2], &myGame.world.areas[aux1].tipo[aux2], sizeof(int));
+		memcpy(&myGame.Resetworld.areas[aux1].mapa[aux2], &myGame.world.areas[aux1].mapa[aux2], sizeof(int)); //copiamos para el reset
+		memcpy(&myGame.Resetworld.areas[aux1].npcs[aux2], &myGame.world.areas[aux1].npcs[aux2], sizeof(int));
+		memcpy(&myGame.Resetworld.areas[aux1].tipo[aux2], &myGame.world.areas[aux1].tipo[aux2], sizeof(int));
 				
 		actualpos += 1;
 	}
