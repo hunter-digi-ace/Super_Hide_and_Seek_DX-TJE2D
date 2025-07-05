@@ -108,6 +108,7 @@ bool functions::loadGameInfo(sGameData& myGame){
 	else {
 		functions::reset(myGame);
 	}
+  return false;
 }
 
 string functions::timeformat(float time) {
