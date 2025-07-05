@@ -92,6 +92,10 @@ set( Framework
     src/game.h
     src/framework.cpp
     src/framework.h
+    src/pantallas.cpp
+    src/pantallas.h
+    src/functions.cpp
+    src/functions.h
     src/utils.cpp
     src/utils.h
     src/image.cpp
@@ -101,6 +105,7 @@ set( Framework
     src/synth.cpp
     src/synth.h
 )
+
 source_group( "framework" FILES ${Framework} )
 set( ALL_FILES ${ALL_FILES} ${Framework} )
 
