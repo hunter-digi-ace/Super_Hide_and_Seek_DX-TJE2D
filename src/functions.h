@@ -25,7 +25,7 @@ public:
     static string* getMesagge(int npc, sGameData& myGame);
     static bool isKid(int npc);
     static void comunicatemaps(sGameData& myGame, int map1, int map2);
-    static bool functions::inHouse(sGameData& myGame); 
+    static bool inHouse(sGameData& myGame); 
     static void updateTime(sGameData& myGame, float elapsedTime);
     static void setdinner(sGameData& myGame);
     static void hideChilds(sGameData& myGame, bool intutorial);
@@ -37,9 +37,9 @@ public:
     static int posFuturaExtended(int x, int y, sGameData& myGame);
     static int canMove(sGameData& myGame);
     static void move(int dir, double seconds_elapsed, sGameData& myGame);
-    static void functions::setPlayerPosX(int posX, int area, sGameData& myGame);
-    static void functions::setPlayerPosY(int posY, int area, sGameData& myGame);
-    static void functions::setPlayerPosXY(int posX, int posY, int area, sGameData& myGame);
+    static void setPlayerPosX(int posX, int area, sGameData& myGame);
+    static void setPlayerPosY(int posY, int area, sGameData& myGame);
+    static void setPlayerPosXY(int posX, int posY, int area, sGameData& myGame);
 };
 
 //function out of any class
