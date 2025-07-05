@@ -1,5 +1,6 @@
 #include "synth.h"
 #include "framework.h"
+#include <algorithm>
 #include <math.h>
 
 Synth::Sample::~Sample()
@@ -29,31 +30,45 @@ Synth::~Synth()
 
 void Synth::generateAudio( float* buffer, int len, SDL_AudioSpec& spec )
 {
-	//synth
-	generateOscillator(osc1, spec);
-	generateOscillator(osc2, spec);
-	generateOscillator(osc3, spec);
+  // Calculate actual number of samples needed
+  const int num_samples = len / sizeof(float);
+  const int samples_to_generate = std::min(num_samples, AUDIO_BUFFER_LENGTH);
 
-	applyFilter(osc1, spec);
-	applyFilter(osc2, spec);
-	applyFilter(osc3, spec);
+  // Generate oscillators and filters for the full buffer
+  generateOscillator(osc1, spec);
+  generateOscillator(osc2, spec);
+  generateOscillator(osc3, spec);
+  applyFilter(osc1, spec);
+  applyFilter(osc2, spec);
+  applyFilter(osc3, spec);
+  
+  // Update samples buffer
+  updateSamplesBuffer(spec);
 
-	//samples
-	updateSamplesBuffer(spec);
+  // Mix with bounds checking
+  for (int i = 0; i < samples_to_generate; ++i)
+  {
+      float s = 0.0;
+      s = osc1.buffer[i];
+      s += osc2.buffer[i];
+      s += osc3.buffer[i];
+      s += noise_volume * ((rand() % 255) / 255.0);
+      s += samples_buffer[i];
+      buffer[i] = volume * s;
+  }
 
-	//mix
-	for (int i = 0; i < AUDIO_BUFFER_LENGTH; ++i)
-	{
-		float s = 0.0;
-		
-		s = osc1.buffer[i];
-		s += osc2.buffer[i];
-		s += osc3.buffer[i];
-		s += noise_volume * ((rand() % 255) / 255.0);
-		
-		s += samples_buffer[i];
-		buffer[i] = volume * s;
-	}
+  // Handle phase continuity for partial buffers
+  if (samples_to_generate < AUDIO_BUFFER_LENGTH) {
+      // Calculate phase carry-over for oscillators
+      const int remaining = AUDIO_BUFFER_LENGTH - samples_to_generate;
+      const double wave_length1 = osc1.freq / spec.freq;
+      const double wave_length2 = osc2.freq / spec.freq;
+      const double wave_length3 = osc3.freq / spec.freq;
+      
+      osc1._phase = fmod(osc1._phase + wave_length1 * remaining, 1.0);
+      osc2._phase = fmod(osc2._phase + wave_length2 * remaining, 1.0);
+      osc3._phase = fmod(osc3._phase + wave_length3 * remaining, 1.0);
+  }
 }
 
 void Synth::generateOscillator(Oscillator& osc, SDL_AudioSpec& spec)
@@ -107,21 +122,19 @@ void Synth::generateOscillator(Oscillator& osc, SDL_AudioSpec& spec)
 
 void Synth::applyFilter( Oscillator& osc, SDL_AudioSpec& spec )
 {
-	if (osc.LPF >= 1)
-		return;
+  if (osc.LPF >= 1)
+        return;
 
-	float filter = clamp(osc.LPF,0.0,1.0);
+    float filter = clamp(osc.LPF, 0.0, 1.0);
+    float last = osc._last;
 
-	float current = 0;
-	float last = osc._last;
+    for (int i = 0; i < AUDIO_BUFFER_LENGTH; ++i)
+    {
+        float current = osc.buffer[i];
+        last = osc.buffer[i] = last - filter * (last - current);
+    }
 
-	for (int i = 0; i < AUDIO_BUFFER_LENGTH; ++i)
-	{
-		current = osc.buffer[i];
-		last = osc.buffer[i] = last - filter * (last - current);
-	}
-
-	osc._last = last;
+  osc._last = last;
 }
 
 Synth::Sample* Synth::loadSample(std::string filename)
