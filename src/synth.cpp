@@ -1,5 +1,6 @@
 #include "synth.h"
 #include "framework.h"
+#include <algorithm>
 #include <math.h>
 
 Synth::Sample::~Sample()
@@ -9,7 +10,7 @@ Synth::Sample::~Sample()
 
 Synth::Synth()
 {
-	volume = 0.2;
+	volume = 0.2f;
 	noise_volume = 0;
 
 	memset(&samples_playback, 0, sizeof(SamplePlayback)*MAX_PLAYBACK_SAMPLES);
@@ -29,7 +30,11 @@ Synth::~Synth()
 
 void Synth::generateAudio( float* buffer, int len, SDL_AudioSpec& spec )
 {
-	//synth
+  // Calculate actual number of samples needed
+  const int num_samples = len / sizeof(float);
+  const int samples_to_generate = std::min(num_samples, AUDIO_BUFFER_LENGTH);
+
+  // Generate oscillators and filters for the full buffer
 	generateOscillator(osc1, spec);
 	generateOscillator(osc2, spec);
 	generateOscillator(osc3, spec);
@@ -42,14 +47,14 @@ void Synth::generateAudio( float* buffer, int len, SDL_AudioSpec& spec )
 	updateSamplesBuffer(spec);
 
 	//mix
-	for (int i = 0; i < AUDIO_BUFFER_LENGTH; ++i)
+	for (int i = 0; i < samples_to_generate; ++i)
 	{
-		float s = 0.0;
+		float s = 0.0f;
 		
 		s = osc1.buffer[i];
 		s += osc2.buffer[i];
 		s += osc3.buffer[i];
-		s += noise_volume * ((rand() % 255) / 255.0);
+		s += noise_volume * ((rand() % 255) / 255.0f);
 		
 		s += samples_buffer[i];
 		buffer[i] = volume * s;
@@ -73,29 +78,29 @@ void Synth::generateOscillator(Oscillator& osc, SDL_AudioSpec& spec)
 		case SIN:
 			for (int i = 0; i < AUDIO_BUFFER_LENGTH; ++i)
 			{
-				osc.buffer[i] = sin(pos * (2.0 * PI)) * amplitude;
+				osc.buffer[i] = sin( (float)(pos * (2.0 * PI))) * amplitude;
 				pos += wave_length;
 			}
 			break;
 		case SAW:
 			for (int i = 0; i < AUDIO_BUFFER_LENGTH; ++i)
 			{
-				osc.buffer[i] = (pos - (int)pos) * amplitude;
+				osc.buffer[i] = (float)(pos - (int)pos) * amplitude;
 				pos += wave_length;
 			}
 			break;
 		case SQR:
 			for (int i = 0; i < AUDIO_BUFFER_LENGTH; ++i)
 			{
-				osc.buffer[i] = (pos - (int)pos) > osc.pw ? 0.0 : amplitude;
+				osc.buffer[i] = (pos - (int)pos) > osc.pw ? 0.0f : amplitude;
 				pos += wave_length;
 			}
 			break;
 		case TRI:
 			for (int i = 0; i < AUDIO_BUFFER_LENGTH; ++i)
 			{
-				float f = (pos - (int)pos);
-				osc.buffer[i] = (f < 0.5 ? f * 2.0 : 1.0 - f * 2.0 ) * amplitude;
+				float f = (float)(pos - (int)pos);
+				osc.buffer[i] = (f < 0.5f ? f * 2.0f : 1.0f - f * 2.0f ) * amplitude;
 				pos += wave_length;
 			}
 			break;
@@ -245,7 +250,7 @@ bool Synth::updateSamplesBuffer(SDL_AudioSpec& spec)
 		else
 			sp.offset += size;
 
-		SDL_MixAudio((Uint8*)samples_buffer, (Uint8*)(sp.sample->buffer + offset), size * sizeof(float), sp.volume * 128 );
+		SDL_MixAudio((Uint8*)samples_buffer, (Uint8*)(sp.sample->buffer + offset), size * sizeof(float), (int)(sp.volume * 128) );
 	}
 	return true;
 }

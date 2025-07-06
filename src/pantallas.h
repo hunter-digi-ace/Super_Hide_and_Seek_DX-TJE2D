@@ -18,7 +18,7 @@ public:
 	void printText(Image& fb, sGameData& myGame);
 
 	static void printUI(Image& fb, sGameData& myGame);
-	static void Stage::printObject(Image& fb, sGameData& myGame, bool object);
+	static void printObject(Image& fb, sGameData& myGame, bool object);
 
 	Stage(const char* name);
 	virtual void render(Image& fb, float time, sGameData& myGame) {}

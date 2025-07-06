@@ -158,11 +158,10 @@ public:
 	{
 		struct { float x,y,z; };
 		float v[3];
-		struct { Vector2 xy; };
 	};
 
-	Vector3() : xy() { x = y = z = 0.0f; }
-	Vector3(float x, float y, float z) : xy() { this->x = x; this->y = y; this->z = z;	}
+	Vector3() : x(0.0f), y(0.0f), z(0.0f) {}
+  Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
 
 	double length();
 	double length() const;
@@ -191,6 +190,10 @@ public:
 	void operator -= (const Vector3& v) { x -= v.x; y -= v.y; z -= v.z; }
 
 	Vector2 XZ() { return Vector2(x, z); }
+
+  // Helper to set XY from Vector2
+  void SetXY(const Vector2& vec) { x = vec.x; y = vec.y; }
+
 	Vector2 XY() { return Vector2(x, y); }
 };
 
@@ -214,14 +217,29 @@ public:
 	{
 		struct { float x,y,z,w; };
 		float v[4];
-		struct { Vector3 xyz; float _w;  };
 	};
 
-	Vector4() { x = y = z = w = 0.0; }
-	Vector4(float x, float y, float z, float w = 1.0f) { this->x = x; this->y = y; this->z = z; this->w = w; }
-	Vector4(const Vector3& v, float w) { x = v.x; y = v.y; z = v.z; this->w = w; }
-	Vector4(const float* v) { x = v[0]; x = v[1]; x = v[2]; x = v[3]; }
-	void set(float x, float y, float z, float w) { this->x = x; this->y = y; this->z = z; this->w = w; }
+  Vector4() : x(0.0f), y(0.0f), z(0.0f), w(0.0f) {}
+  Vector4(float x, float y, float z, float w = 1.0f) : x(x), y(y), z(z), w(w) {}
+  Vector4(const Vector3& v, float w) : x(v.x), y(v.y), z(v.z), w(w) {}
+  Vector4(const float* v) : x(v[0]), y(v[1]), z(v[2]), w(v[3]) {}  // Fixed initialization bug
+
+  void set(float x, float y, float z, float w) {
+        this->x = x;
+        this->y = y;
+        this->z = z;
+        this->w = w;
+  }
+
+  // Helper to get xyz components as Vector3
+  Vector3 xyz() const { return Vector3(x, y, z); }
+    
+    // Helper to set xyz components from Vector3
+  void set_xyz(const Vector3& v) {
+        x = v.x;
+        y = v.y;
+        z = v.z;
+  }
 };
 
 inline Vector4 operator * (const Vector4& a, float v) { return Vector4(a.x * v, a.y * v, a.z * v, a.w * v); }

@@ -2,6 +2,8 @@ cmake_minimum_required( VERSION 3.2 )
 
 project( ComputerGraphics )
 
+set(OpenGL_GL_PREFERENCE LEGACY)
+
 if( ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang" )
     message( STATUS "Found Clang" )
     # no built in variable for Clang so make one
@@ -90,6 +92,10 @@ set( Framework
     src/game.h
     src/framework.cpp
     src/framework.h
+    src/pantallas.cpp
+    src/pantallas.h
+    src/functions.cpp
+    src/functions.h
     src/utils.cpp
     src/utils.h
     src/image.cpp
@@ -99,6 +105,7 @@ set( Framework
     src/synth.cpp
     src/synth.h
 )
+
 source_group( "framework" FILES ${Framework} )
 set( ALL_FILES ${ALL_FILES} ${Framework} )
 

@@ -43,7 +43,7 @@ class Synth {
 				LPF = 1;
 			}
 
-			void setNote( int note ) { freq = 440.0 * pow(2.0, (note - 69) / 12.0); }
+			void setNote( int note ) { freq = 440.0f * pow(2.0f, (float)(note - 69) / 12.0f); }
 		};
 
 		//master volume
@@ -93,7 +93,7 @@ class Synth {
 		SamplePlayback* playSample( std::string filename, float volume = 0.2, bool loop = false);
 		bool updateSamplesBuffer(SDL_AudioSpec& spec );
 
-		static float getNoteFreq(int note) { return 440 * pow(2.0, (note - 69) / 12.0); }
+		static float getNoteFreq(int note) { return 440.0f * pow(2.0f, (float)(note - 69) / 12.0f); }
 };
 
 #endif
